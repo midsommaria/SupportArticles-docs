@@ -168,7 +168,7 @@ When you browse to the SCEP server URL, you receive the following Network Device
 
 When you browse to the SCEP server URL, you receive the following error:
 
-:::image type="content" source="media/troubleshoot-scep-certificate-device-to-ndes/service-unavailable.png" alt-text="Screenshot of the HTTP Error 503. The service is unavailable."  border="false":::
+:::image type="content" source="media/troubeshoot-scep-certificate-device-to-ndes/service-unavailable.png" alt-text="Screenshot of the HTTP Error 503. The service is unavailable."  border="false":::
 
 This issue is usually because the **SCEP** application pool in IIS isn't started. On the NDES server, open **IIS Manager** and go to **Application Pools**. Locate the **SCEP** application pool and confirm it's started.
 
@@ -215,32 +215,6 @@ If the SCEP application pool isn't started, check the application event log on t
 
   :::image type="content" source="media/troubleshoot-scep-certificate-device-to-ndes/iis-permissions.png" alt-text="Screenshot of the Anonymous Authentication and Windows Authentication permissions.":::
 
-- **Cause 4**: The NDESPolicy module certificate has expired.
-
-  The CAPI2 log (see Cause 2's solution) will show errors relating to the certificate referenced by `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography\MSCEP\Modules\NDESPolicy\NDESCertThumbprint` being outside of the certificate's validity period.
-
-  **Solution**: Renew the certificate and reinstall the connector.
-
-   1. Use `certlm.msc` to open the local computer certificate store, expand **Personal**, and then select **Certificates**.
-   1. In the list of certificates, find an expired certificate that satisfies the following conditions:
-
-      - The value of **Intended Purposes** is **Client Authentication**.
-      - The value of **Issued To** or **Common Name** matches the NDES server name.
-
-      > [!NOTE]
-      > The Client Authentication extended key usage (EKU) is required. Without this EKU, CertificateRegistrationSvc will return an HTTP 403 response to NDESPlugin requests. This response will be logged in the IIS logs.
-   1. Double-click the certificate. In the **Certificate** dialog box, select the **Details** tab, locate the **Thumbprint** field, and then verify the value matches the value of the `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography\MSCEP\Modules\NDESPolicy\NDESCertThumbprint` registry subkey.
-   1. Select **OK** to close the **Certificate** dialog box.
-   1. Right-click the certificate, select **All Tasks**, then select **Request Certificate with New Key** or **Renew Certificate with New Key**.
-   1. In the **Certificate Enrollment** page, select **Next**, select the correct SSL template, and then select **More information is required to enroll for this certificate. Click here to configure settings**.
-   1. In the **Certificate Properties** dialog box, select the **Subject** tab, and then perform the following steps:
-
-      1. Under **Subject name**, in the **Type** drop-down box, select **Common Name**. In the **Value** box, enter the fully qualified domain name (FQDN) of the NDES server. Then select **Add**.
-      1. Under **Alternative name**, in the **Type** drop-down box, select **DNS**. In the **Value** box, enter the FQDN of the NDES server. Then select **Add**.
-      1. Select **OK** to close the **Certificate Properties** dialog box.
-   1. Select **Enroll**, wait until the enrollment finishes successfully, and then select **Finish**.
-   1. Reinstall the Intune Certificate Connector to link it to the newly created certificate. For more information, see [How to reinstall the Intune Certificate Connector](./reinstall-the-intune-connector.md).
-   1. After you close the Certificate Connector UI, restart the Intune Connector Service and the World Wide Web Publishing Service.
 
 ### GatewayTimeout
 
